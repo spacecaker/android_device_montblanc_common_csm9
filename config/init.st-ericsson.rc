@@ -238,6 +238,10 @@ on boot
     chown system system /sys/bus/i2c/devices/2-0054/cycle
     chown system system /sys/bus/i2c/devices/2-0054/filter
 
+    # Permissions for LM3533 Light Sensor
+    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0036/als_enable
+    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/als_result
+
     # Permissions for LM356x flash LED
     chown system system /sys/bus/i2c/devices/2-0053/torch_enable
     chown system system /sys/bus/i2c/devices/2-0053/torch_current
@@ -258,21 +262,16 @@ on boot
     chown system system /sys/bus/i2c/devices/2-0053/privacy_enable
     chown system system /sys/bus/i2c/devices/2-0053/privacy_current
 
+    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/als_on
+    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/als_result
     chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/pattern_data
     chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/pattern_delay
     chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/pattern_duration_secs
+    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/pattern_use_softdim
+    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/dim_time
     chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/l-key-red/use_pattern
     chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/l-key-green/use_pattern
     chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/l-key-blue/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/m-key-red/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/m-key-green/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/m-key-blue/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/r-key-red/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/r-key-green/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/r-key-blue/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/pwr-red/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/pwr-green/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/pwr-blue/use_pattern
 
     chmod 666 /sys/devices/av8100_hdmi.3/disponoff
     chmod 666 /sys/devices/av8100_hdmi.3/hdmisdtvswitch
@@ -408,8 +407,14 @@ service iprenew_bnep0 /system/bin/dhcpcd -n
     disabled
     oneshot
 
+service dhcpcd_fix rm /data/misc/dhcp/*
+    user root
+    disabled
+    oneshot
+
 on property:init.svc.wpa_supplicant=stopped
     stop dhcpcd
+    start dhcpcd_fix
 
 on property:init.svc.dhcpcd=stopped
     stop dhcpcd
@@ -534,4 +539,10 @@ service batcap /system/bin/batcap
     class main
     user root
     oneshot
+
+on property:dhcp.wlan0.result=ok
+    exec /system/bin/iw phy phy0 wowlan enable any
+
+on property:init.svc.hostapd_bin=stopped
+    exec /system/bin/iw dev mon.wlan0 del
 
