@@ -8,6 +8,10 @@ $(INSTALLED_BOOTIMAGE_TARGET): $(PRODUCT_OUT)/kernel $(recovery_ramdisk) $(INSTA
 	$(hide) cp -R $(PRODUCT_OUT)/root/* $(PRODUCT_OUT)/combinedroot/
 	$(hide) cp -R $(PRODUCT_OUT)/recovery/root/sbin/* $(PRODUCT_OUT)/combinedroot/sbin/
 	$(hide) $(MKBOOTFS) $(PRODUCT_OUT)/combinedroot/ > $(PRODUCT_OUT)/combinedroot.cpio
+	@echo ----- Making ramdisk.tar ------
+	$(hide) cd $(PRODUCT_OUT)/combinedroot/ && tar -cvf ramdisk.tar . && cd ..
+	$(hide) cp -R $(PRODUCT_OUT)/combinedroot/ramdisk.tar $(PRODUCT_OUT)/system/bin/ramdisk.tar
+	@echo ----- Made ramdisk.tar --------
 	$(hide) cat $(PRODUCT_OUT)/combinedroot.cpio | gzip > $(PRODUCT_OUT)/combinedroot.fs
 	$(hide) python $(MKELF) -o $@ $(PRODUCT_OUT)/kernel@$(BOARD_FORCE_KERNEL_ADDRESS) $(PRODUCT_OUT)/combinedroot.fs@$(BOARD_FORCE_RAMDISK_ADDRESS),ramdisk $(BOARD_CMDLINE)@cmdline
 

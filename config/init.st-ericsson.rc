@@ -34,7 +34,7 @@ on init
 
     # Create symlink
     symlink /mnt/sdcard /sdcard
-    symlink /mnt/external_sd /external_sd
+    mkdir /external_sd 0000 system system
     symlink /mnt/usbdisk /usbdisk
 
     # chown for sim detect
@@ -155,11 +155,8 @@ on post-fs-data
     write /sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun1/nofua 1
 
 on early-boot
-    #start recovery
-    exec /sbin/bootrec
-
     # Start the offline charging
-    exec /system/bin/chargemon
+    exec /system/bin/charger
 
     start cspsa
 
@@ -275,15 +272,6 @@ on boot
     chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/l-key-red/use_pattern
     chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/l-key-green/use_pattern
     chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/l-key-blue/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/m-key-red/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/m-key-green/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/m-key-blue/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/r-key-red/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/r-key-green/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/r-key-blue/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/pwr-red/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/pwr-green/use_pattern
-    chown system system /sys/devices/platform/nmk-i2c.2/i2c-2/2-0040/leds/pwr-blue/use_pattern
 
     chmod 666 /sys/devices/av8100_hdmi.3/disponoff
     chmod 666 /sys/devices/av8100_hdmi.3/hdmisdtvswitch
@@ -312,6 +300,12 @@ on boot
 
     #Load wifi modules and MAC setup
     exec /system/bin/install_wlan
+
+    #Load kernel modules
+    insmod /system/lib/modules/axperiau_ondemandax.ko
+    insmod /system/lib/modules/axperiau_pegasusq.ko
+    insmod /system/lib/modules/axperiau_smartass2.ko
+    insmod /system/lib/modules/axperiau_sio_iosched.ko
 
     # power-management
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ondemand
@@ -424,7 +418,6 @@ on property:init.svc.wpa_supplicant=stopped
 
 on property:init.svc.dhcpcd=stopped
     stop dhcpcd
-    start dhcpcd_fix
 
 # STE, C&N service daemon
 service cn_server /system/bin/cn_server
@@ -552,5 +545,4 @@ on property:dhcp.wlan0.result=ok
 
 on property:init.svc.hostapd_bin=stopped
     exec /system/bin/iw dev mon.wlan0 del
-
 

@@ -6,6 +6,8 @@ $(call inherit-product-if-exists, vendor/sony/montblanc-common/montblanc-vendor-
 
 DEVICE_PACKAGE_OVERLAYS += device/sony/montblanc-common/overlay
 
+CYANOSPACEMOD_VERSION = 2.0
+
 # Permissions
 PRODUCT_COPY_FILES += \
     frameworks/base/data/etc/android.hardware.camera.flash-autofocus.xml:system/etc/permissions/android.hardware.camera.flash-autofocus.xml \
@@ -98,6 +100,9 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
     sys.mem.max_hidden_apps=10
+    wifi.interface=wlan0 \
+    ro.cm.version=$(CYANOSPACEMOD_VERSION) \
+    ro.modversion=$(CYANOSPACEMOD_VERSION)
 
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.sys.usb.config=mtp \
