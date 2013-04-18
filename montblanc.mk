@@ -6,7 +6,7 @@ $(call inherit-product-if-exists, vendor/sony/montblanc-common/montblanc-vendor-
 
 DEVICE_PACKAGE_OVERLAYS += device/sony/montblanc-common/overlay
 
-CYANOSPACEMOD_VERSION = 2.0
+CYANOSPACEMOD_VERSION = 3.0
 
 # Permissions
 PRODUCT_COPY_FILES += \
@@ -101,6 +101,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     sys.mem.max_hidden_apps=10
     wifi.interface=wlan0 \
+    ro.space.version=$(CYANOSPACEMOD_VERSION) \
     ro.cm.version=$(CYANOSPACEMOD_VERSION) \
     ro.modversion=$(CYANOSPACEMOD_VERSION)
 
